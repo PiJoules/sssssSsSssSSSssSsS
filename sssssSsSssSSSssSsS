@@ -94,11 +94,12 @@ def decode(s):
     while i < len(s) - 2:
         key = s[i:i + 3]
         if key in flipped:
-            result += flipped.get(key)
+            result += flipped[key]
             i += 3
         else:
-            result += key
+            result += s[i]
             i += 1
+    result += s[i - len(s):]
     return result
 
 
@@ -106,21 +107,6 @@ def decode_file(filename):
     """Decode a file. Return decoded text."""
     with open(filename, "r") as f:
         return "".join(map(lambda x: decode(x), f))
-
-
-def get_args():
-    """Parse cmd line args."""
-    from argparse import ArgumentParser
-    parser = ArgumentParser(description="Run python code")
-    parser.add_argument("filename", help="Python file to run.")
-    parser.add_argument("--python-decode", default=False,
-                        action="store_true",
-                        help="Just decode the python file.")
-    parser.add_argument("--python-encode", default=False,
-                        action="store_true",
-                        help="Just encode the python file.")
-
-    return parser.parse_args()
 
 
 def parse_args():
@@ -146,22 +132,26 @@ def parse_args():
 
 
 def main():
-    # args = get_args()
+    if len(sys.argv) < 2:
+        print("Usage: {} filename [--python-encode|--python-decode]".format(sys.argv[0]), file=sys.stderr)
+        return 1
     args = parse_args()
-    print(args)
     filename = args["filename"]
 
     if args["python_decode"]:
-        pass
+        print(decode_file(filename), end="")
     elif args["python_encode"]:
-        pass
+        encoded = encode(filename)
+        with open(encoded, "w") as f:
+            print(encode_file(filename), file=f)
     else:
         decoded = decode_file(filename)
         with tempfile.NamedTemporaryFile(suffix=".py") as tmpf:
             tmpf.write(decoded)
+            tmpf.flush()
             print(subprocess.check_output(
-                  "python {} {}".format(tmpf.name, args["extra"]),
-                  shell=True))
+                  "python {} {}".format(tmpf.name, " ".join(args["extra"])),
+                  shell=True), end="")
 
     return 0
 
