@@ -4,7 +4,7 @@ A joke taken too far.
 ## Usage
 First make sure sssssSsSssSSSssSsS has executable permission.
 ```sh
-$ chmod +x sssssSsSssSSSssSsS && export PATH=$PATH:.
+$ chmod +x sssssSsSssSSSssSsS
 ```
 
 ### Encoding (regular) python
